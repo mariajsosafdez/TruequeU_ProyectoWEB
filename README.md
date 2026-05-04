@@ -5,7 +5,7 @@ Este repositorio contiene la lógica de servidor, persistencia de datos y API RE
 
 ## Estructura y gestión
 * Framework: .NET 10.0 (ASP.NET Core)
-* Arquitectura por Capas (Controladores, Interfaces, Servicios)
+* Arquitectura por Capas (Controladores → Interfaces → Servicios → DB)
 * Persistencia: SQL Server + Entity Framework Core
 * Auth: ASP.NET Core Identity + JWT Bearer
 
