@@ -5,7 +5,7 @@ Este repositorio contiene la lógica de servidor, persistencia de datos y API RE
 
 ## Estructura y gestión
 * Framework: .NET 10.0 (ASP.NET Core)
-* Arquitectura por Capas (Controladores, Interfaces, Servicios)
+* Arquitectura por Capas (Controladores → Interfaces → Servicios → DB)
 * Persistencia: SQL Server + Entity Framework Core
 * Auth: ASP.NET Core Identity + JWT Bearer
 
@@ -19,3 +19,10 @@ Install-Package Microsoft.AspNetCore.Identity.EntityFrameworkCore -Version 10.0.
 Install-Package Microsoft.EntityFrameworkCore.SqlServer -Version 10.0.7
 Install-Package Microsoft.EntityFrameworkCore.Design -Version 10.0.7
 Install-Package Microsoft.EntityFrameworkCore.Tools -Version 10.0.7
+```
+## Migraciones en la DB
+Instalar herramienta global de Entity Framework, luego usar los otros comandos para crear las migraciones
+```powershell
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add NombreMigracion
+dotnet ef database update
