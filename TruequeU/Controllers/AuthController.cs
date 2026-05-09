@@ -1,6 +1,10 @@
-﻿namespace TruequeU.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace TruequeU.Controllers
 {
-    public class AuthController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : Controller
     {
     }
 }
