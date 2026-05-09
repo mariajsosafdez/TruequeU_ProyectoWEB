@@ -17,10 +17,10 @@ namespace TruequeU.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
-            var result = await _authService.Register(model.email, model.password, model.rol);
+            var result = await _authService.Register(model.Email, model.Password, model.Rol);
 
             if (result.Succeeded)
-                return Ok(new { message = $"Usuario {model.email} creado correctamente" });
+                return Ok(new { message = $"Usuario {model.Email} creado correctamente" });
 
             return BadRequest();
         }
