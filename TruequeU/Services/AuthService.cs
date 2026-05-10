@@ -1,4 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using TruequeU.Interfaces;
 
 namespace TruequeU.Services
@@ -34,6 +38,47 @@ namespace TruequeU.Services
                 await _userManager.AddToRoleAsync(user, role); //al usuario agregale el rol :)
             }
             return result;
+        }
+
+        public async Task<string> Login(string email, string pwd)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null && await _userManager.CheckPasswordAsync(user, pwd))
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                return GetJWTToken(user, userRoles);
+            }
+
+            return null;
+        }
+
+        private string GetJWTToken(IdentityUser user, IList<string> roles)
+        {
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            foreach (var role in roles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var authSignatureKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _configuration["Jwt:Key"]!));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                expires: DateTime.Now.AddHours(3),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(
+                    authSignatureKey, SecurityAlgorithms.HmacSha256)
+                );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
