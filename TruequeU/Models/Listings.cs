@@ -7,7 +7,7 @@ namespace TruequeU.Models
     public enum Status { Disponible, Reservado, Intercambiado }
     public enum Category { Libros, Utiles, Tecnologia, Accesorios, Otro}
     public enum Location { SedePalmas, SedeZuniga }
-    public class Listing
+    public class Listings
     {
         [Key]
         public Guid IdListing { get; set; } = Guid.NewGuid();
