@@ -7,17 +7,17 @@ namespace TruequeU.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid MessageId { get; set; }
+        public Guid MessageId { get; set; } = Guid.NewGuid();
 
         [Required]
         public Guid ChatId { get; set; }
         [ForeignKey("ChatId")]
-        public Chat Chat { get; set; } = null!;
+        public Chat? Chat { get; set; } = null!;
 
         [Required]
         public Guid SenderId { get; set; }
         [ForeignKey("SenderId")]
-        public Client Sender { get; set; } = null!;
+        public Client? Sender { get; set; } = null!;
 
         [MaxLength(1000)]
         public string Content { get; set; } = string.Empty;

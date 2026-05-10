@@ -1,6 +1,6 @@
 ﻿namespace TruequeU.Interfaces
 {
-    public class IReportService
+    public interface IReportService
     {
     }
 }

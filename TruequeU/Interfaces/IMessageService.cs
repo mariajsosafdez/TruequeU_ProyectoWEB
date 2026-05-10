@@ -1,6 +1,6 @@
 ﻿namespace TruequeU.Interfaces
 {
-    public class IMessageService
+    public interface IMessageService
     {
     }
 }
