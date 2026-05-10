@@ -7,7 +7,7 @@ namespace TruequeU.Models
     public class Clients
     {
         [Key]
-        public Guid IdCliente { get; set; } = Guid.NewGuid();
+        public Guid ClientId { get; set; } = Guid.NewGuid();
         [Required]
         public string NombreCliente { get; set; }
         public string Carrera { get; set; }
