@@ -10,5 +10,6 @@ namespace TruequeU.Persistence
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
 
         public DbSet<Clients> Clients { get; set; }
+        public DbSet<Listings> Listings { get; set; }
     }
 }
