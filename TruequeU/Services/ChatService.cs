@@ -67,14 +67,14 @@ namespace TruequeU.Services
             return chat;
         }
 
-        public async Task<Chat> NewChat(Guid SellerId, Guid BuyerId)
+        public async Task<Chat> NewChat(Guid sellerId, Guid buyerId)
         {
-            var sellerExist = await _context.Clients.FindAsync(SellerId);
+            var sellerExist = await _context.Clients.FindAsync(sellerId);
 
             if (!sellerExist)
                 throw new KeyNotFoundException("El vendedor no existe.");
 
-            if (BuyerId == SellerId)
+            if (buyerId == sellerId)
                 throw new InvalidOperationException("No puedes iniciar un chat contigo mismo.");
 
             // Busca si ya existe un chat entre estos dos
@@ -82,7 +82,7 @@ namespace TruequeU.Services
                 .Include(c => c.Buyer)
                 .Include(c => c.Seller)
                 .FirstOrDefaultAsync(c =>
-                    c.BuyerId == BuyerId && c.SellerId == SellerId);
+                    c.BuyerId == buyerId && c.SellerId == sellerId);
 
             if (existing != null)
                 return existing;
@@ -91,8 +91,8 @@ namespace TruequeU.Services
             var newChat = new Chat
             {
                 ChatId = Guid.NewGuid(),
-                BuyerId = BuyerId,
-                SellerId = SellerId,
+                BuyerId = buyerId,
+                SellerId = sellerId,
                 CreatedAt = DateTime.UtcNow
             };
 

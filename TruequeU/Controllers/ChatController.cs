@@ -22,21 +22,21 @@ namespace TruequeU.Controllers
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         [HttpPost("{SellerId}")]
-        public async Task<IActionResult> newChat(Guid SellerId)
+        public async Task<IActionResult> NewChat(Guid sellerId)
         {
             try
             {
-                var BuyerId = GetCurrentUserId();
-                var newChat = await _chatService.NewChat(SellerId, BuyerId);
+                var buyerId = GetCurrentUserId();
+                var newChat = await _chatService.NewChat(sellerId, buyerId);
                 return Ok(newChat);
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException e)
             {
-                return NotFound(ex.Message);
+                return NotFound(e.Message);
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException e)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(e.Message);
             }
         }
 
@@ -49,13 +49,13 @@ namespace TruequeU.Controllers
                 var chat = await _chatService.GetChatById(chatId, requesterId);
                 return Ok(chat);
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException e)
             {
-                return NotFound(ex.Message);
+                return NotFound(e.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException e)
             {
-                return Unauthorized(ex.Message);
+                return Unauthorized(e.Message);
             }
         }
 

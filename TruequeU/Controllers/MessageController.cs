@@ -30,13 +30,13 @@ namespace TruequeU.Controllers
                 var messages = await _messageService.GetMessagesByChat(chatId, requesterId);
                 return Ok(messages);
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException e)
             {
-                return NotFound(ex.Message);
+                return NotFound(e.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException e)
             {
-                return Unauthorized(ex.Message);
+                return Unauthorized(e.Message);
             }
         }
  
@@ -49,17 +49,17 @@ namespace TruequeU.Controllers
                 var message = await _messageService.SendMessage(chatId, senderId, content);
                 return CreatedAtAction(nameof(GetMessages), new { chatId }, message);
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException e)
             {
-                return NotFound(ex.Message);
+                return NotFound(e.Message);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException e)
             {
-                return Unauthorized(ex.Message);
+                return Unauthorized(e.Message);
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException e)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(e.Message);
             }
         }
 
