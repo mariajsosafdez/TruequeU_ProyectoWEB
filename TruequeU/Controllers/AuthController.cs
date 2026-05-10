@@ -22,7 +22,18 @@ namespace TruequeU.Controllers
             if (result.Succeeded)
                 return Ok(new { message = $"Usuario {model.Email} creado correctamente" });
 
-            return BadRequest();
+            return BadRequest(result.Errors);
+        }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO login)
+        {
+            var token = await _authService.Login(login.Email, login.Password);
+            if (token != null)
+            {
+                return Ok(new { Token = token });
+            }
+
+            return Unauthorized(new { Message = "Credenciales incorrectas" });
         }
 
         public IActionResult Index()
