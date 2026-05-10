@@ -6,7 +6,6 @@ namespace TruequeU.Models
     public class Chat
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid ChatId { get; set; } = Guid.NewGuid();
         [Required]
         public Guid BuyerId { get; set; }

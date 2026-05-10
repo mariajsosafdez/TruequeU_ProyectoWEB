@@ -6,7 +6,6 @@ namespace TruequeU.Models
     public class Message
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid MessageId { get; set; } = Guid.NewGuid();
 
         [Required]
