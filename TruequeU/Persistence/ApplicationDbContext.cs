@@ -8,8 +8,7 @@ namespace TruequeU.Persistence
 
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
 
         }
 
@@ -17,6 +16,7 @@ namespace TruequeU.Persistence
         public DbSet<Message> Messages { get; set; }
         public DbSet<Report> Reports { get; set; }
 
+        public DbSet<Clients> Clients { get; set; }
     }
 
 }
