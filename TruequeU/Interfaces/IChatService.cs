@@ -7,8 +7,8 @@ namespace TruequeU.Interfaces
 
         Task<Chat> NewChat(Guid SellerId, Guid BuyerId);
 
-        Task<Chat> GetChatById(Guid chatId, Guid clientId);
+        Task<Chat> GetChatById(Guid chatId, Guid requesterId);
 
-        Task<List<Chat>> GetMyChats(Guid clienteId);
+        Task<List<Chat>> GetMyChats(Guid requesterId);
     }
 }
