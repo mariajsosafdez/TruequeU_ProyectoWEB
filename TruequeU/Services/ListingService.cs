@@ -33,7 +33,7 @@ namespace TruequeU.Services
                 Categoria = l.Categoria,
                 Precio = l.Precio,
                 Estado = l.Estado,
-                NombreOwner = l.Owner?.NombreCliente ?? "Usuario TruequeU"
+                OwnerName = l.Owner?.NombreCliente ?? "Usuario TruequeU"
             }).ToList();//por ahora no es capaz de traer nombreOwner, queda pendiente
 
             return result;
