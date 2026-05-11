@@ -14,13 +14,26 @@ namespace TruequeU.Controllers
             _authService = authService;
         }
 
-        [HttpPost("register")]
+        [HttpPost("registerUser")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
+            if (model.Rol == "Client")
+                return BadRequest("Use el endpoint RegisterClient para poder crear Usuario tipo Client");
+        
             var result = await _authService.Register(model.Email, model.Password, model.Rol);
 
             if (result.Succeeded)
                 return Ok(new { message = $"Usuario {model.Email} creado correctamente" });
+
+            return BadRequest(result.Errors);
+        }
+        [HttpPost("registerClient")]
+        public async Task<IActionResult> RegisterClient([FromBody] RegisterClientDTO model)
+        {
+            var result = await _authService.RegisterClient(model);
+
+            if (result.Succeeded)
+                return Ok(new { message = $"Cliente {model.Email}, {model.NombreCliente} creado correctamente" });
 
             return BadRequest(result.Errors);
         }
