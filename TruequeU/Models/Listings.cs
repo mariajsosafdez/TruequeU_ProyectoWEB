@@ -26,6 +26,8 @@ namespace TruequeU.Models
         public Status Estado { get; set; } = Status.Disponible;
         [Required]
         public Category Categoria { get; set; }
+        [Required]
+        public float Precio { get; set; }
         public Location Ubicacion { get; set; } = Location.SedePalmas;
 
         [Required]
