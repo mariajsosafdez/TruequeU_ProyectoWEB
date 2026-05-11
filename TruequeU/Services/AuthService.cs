@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -85,28 +86,32 @@ namespace TruequeU.Services
             if (user != null && await _userManager.CheckPasswordAsync(user, pwd))
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
-                return GetJWTToken(user, userRoles);
+                var client = await _context.Clients
+                    .FirstOrDefaultAsync(c => c.IdentityUserId == user.Id);
+                return GetJWTToken(user, userRoles, client?.ClientId);
             }
 
             return null;
         }
 
-        private string GetJWTToken(IdentityUser user, IList<string> roles)
+        private string GetJWTToken(IdentityUser user, IList<string> roles, Guid? clientId)
         {
+            var userRole = roles.FirstOrDefault();
+            //trabajar con un rol único, no se puede ser Admin y Client a la vez
+
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, userRole)
             };
-
-            foreach (var role in roles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
 
             var authSignatureKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration["Jwt:Key"]!));
+
+            if(clientId.HasValue)
+                authClaims.Add(new Claim("ClientId", clientId.Value.ToString()));
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
