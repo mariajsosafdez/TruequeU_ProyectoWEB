@@ -58,6 +58,14 @@ namespace TruequeU.Controllers
 
             return Ok(listing);
         }
+        //como un getAll (lista) pero por propietario, para usar en perfiles
+        [HttpGet("owner/{ownerId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetByOwnerId(Guid ownerId)
+        {
+            var listings = await _listingService.GetByOwnerId(ownerId);
+            return Ok(listings);
+        }
         public IActionResult Index()
         {
             return View();
