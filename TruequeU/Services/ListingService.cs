@@ -59,5 +59,23 @@ namespace TruequeU.Services
                 })
                 .FirstOrDefaultAsync();
         }
+
+        //traer los listings que creó un Client (owner)
+        public async Task<List<ListingResponseDTO>> GetByOwnerId(Guid ownerId)//id de Client
+        {
+            return await _context.Listings
+                .Where(l => (l.OwnerId == ownerId) && l.isActive)
+                .Select(l => new ListingResponseDTO
+                {
+                    IdListing = l.IdListing,
+                    Titulo = l.Titulo,
+                    Condicion = l.Condicion,
+                    Categoria = l.Categoria,
+                    Precio = l.Precio,
+                    Estado = l.Estado,
+                    OwnerName = l.Owner!.NombreCliente
+                })
+                .ToListAsync();
+        }
     }
 }
