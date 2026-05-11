@@ -39,5 +39,25 @@ namespace TruequeU.Services
 
             return result;
         }
+        //traer un solo listing por id (Detalles)
+        public async Task<ListingDetailResponseDTO?> GetById(Guid id)
+        {
+            return await _context.Listings
+                .Include(l => l.Owner)//como si fuera un join
+                .Where(l => l.IdListing == id && l.isActive)
+                .Select(l => new ListingDetailResponseDTO
+                {
+                    IdListing = l.IdListing,
+                    Titulo = l.Titulo,
+                    Descripcion = l.Descripcion,
+                    Condicion = l.Condicion,
+                    Categoria = l.Categoria,
+                    Precio = l.Precio,
+                    Estado = l.Estado,
+                    OwnerName = l.Owner!.NombreCliente,
+                    OwnerId = l.OwnerId//Saca lo que necesita del dueño (Client que creó el listing)
+                })
+                .FirstOrDefaultAsync();
+        }
     }
 }
