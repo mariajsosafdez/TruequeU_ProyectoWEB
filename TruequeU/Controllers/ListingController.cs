@@ -45,6 +45,14 @@ namespace TruequeU.Controllers
 
             return Ok(result);
         }
+        [HttpGet]
+        [AllowAnonymous] // es tipo el catálogo, lo ve aunque no esté logueado
+        public async Task<IActionResult> GetAll()
+        {
+            var listings = await _listingService.GetAll();//el getAll va a devolver los que estén activos (ListingResponseDTO, no el obj completo)
+
+            return Ok(listings);
+        }
         public IActionResult Index()
         {
             return View();
