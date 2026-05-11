@@ -47,6 +47,17 @@ namespace TruequeU.Controllers
 
             return Ok(listings);
         }
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var listing = await _listingService.GetById(id);
+
+            if (listing == null)
+                return NotFound("La publicación no existe o fue eliminada");
+
+            return Ok(listing);
+        }
         public IActionResult Index()
         {
             return View();
