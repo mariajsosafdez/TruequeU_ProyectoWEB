@@ -22,6 +22,14 @@ namespace TruequeU.Services
 
         public async Task<IdentityResult> Register(string email, string pw, string role)
         {
+            var userExists = await _userManager.FindByEmailAsync(email);
+            if (userExists != null)
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Code = "DuplicateEmail",
+                    Description = "El correo ya está registrado"
+                });
+
             var user = new IdentityUser
             {
                 UserName = email,
