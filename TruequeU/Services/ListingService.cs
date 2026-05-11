@@ -22,7 +22,8 @@ namespace TruequeU.Services
 
         public async Task<List<ListingResponseDTO>> GetAll()
         {
-            var listings = await _context.Listings.Where(l => l.isActive).ToListAsync();
+            //usa el include como una especie de join para obtener la info del owner
+            var listings = await _context.Listings.Include(l=>l.Owner).Where(l=>l.isActive).ToListAsync();
 
             // Mapeo a DTO compacto para dar solo la info que usan los cards
             var result = listings.Select(l => new ListingResponseDTO
@@ -33,8 +34,8 @@ namespace TruequeU.Services
                 Categoria = l.Categoria,
                 Precio = l.Precio,
                 Estado = l.Estado,
-                OwnerName = l.Owner?.NombreCliente ?? "Usuario TruequeU"
-            }).ToList();//por ahora no es capaz de traer nombreOwner, queda pendiente
+                OwnerName = l.Owner!.NombreCliente
+            }).ToList();
 
             return result;
         }
