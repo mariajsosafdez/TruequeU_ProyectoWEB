@@ -13,22 +13,16 @@ namespace TruequeU.Controllers
     public class ListingController : Controller
     {
         private readonly IListingService _listingService;
-        private readonly IClientService _clientService;
-        public ListingController(IListingService listingService, IClientService clientService)
+        public ListingController(IListingService listingService)
         {
             _listingService = listingService;
-            _clientService = clientService;
         }
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ListingCreateDTO model)
         {
-            var userIdFromTk = User.FindFirstValue(ClaimTypes.NameIdentifier);// sacar el id del token (usuario logueado)
-            if (string.IsNullOrEmpty(userIdFromTk)) return Unauthorized();
+            var clientId = User.FindFirst("ClientId")?.Value;
 
-            var clientProfile = await _clientService.GetByUserId(userIdFromTk);//obtener el objeto cliente con el idusuario
-
-            if (clientProfile == null)
-                return Unauthorized("Este usuario aún no tiene perfil de cliente");
+            if (clientId == null) return Unauthorized("El usuario logueado no tiene rol Client");
 
             var newListing = new Listings
             {
@@ -38,7 +32,7 @@ namespace TruequeU.Controllers
                 Categoria = model.Categoria,
                 Ubicacion = model.Ubicacion,
                 Precio = model.Precio,
-                OwnerId = clientProfile.ClientId//toma el ClientId desde el objeto de antes
+                OwnerId = Guid.Parse(clientId)
             };
 
             var result = await _listingService.Create(newListing);
