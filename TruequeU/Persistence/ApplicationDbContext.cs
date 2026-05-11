@@ -8,15 +8,29 @@ namespace TruequeU.Persistence
 
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
-
-        }
-
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<Report> Reports { get; set; }
+        //public DbSet<Report> Reports { get; set; }
 
         public DbSet<Clients> Clients { get; set; }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Chat>()
+                .HasOne(c => c.Buyer)
+                .WithMany()
+                .HasForeignKey(c => c.BuyerId)
+                .OnDelete(DeleteBehavior.NoAction);  // Evitar borrar en cascada 
+
+            modelBuilder.Entity<Chat>()
+                .HasOne(c => c.Seller)
+                .WithMany()
+                .HasForeignKey(c => c.SellerId)
+                .OnDelete(DeleteBehavior.NoAction);  //Evitar borrar en cascada
+        }
+
     }
 
 }

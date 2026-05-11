@@ -16,10 +16,10 @@ namespace TruequeU.Models
         [Required]
         public Guid SenderId { get; set; }
         [ForeignKey("SenderId")]
-        public Client? Sender { get; set; } = null!;
+        public Clients? Sender { get; set; } = null!;
 
         [MaxLength(1000)]
-        public string Content { get; set; } = string.Empty;
+        public string Content { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

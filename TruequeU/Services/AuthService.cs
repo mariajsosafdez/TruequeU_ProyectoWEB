@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TruequeU.Interfaces;
+using TruequeU.Persistence;
 
 namespace TruequeU.Services
 {
@@ -12,12 +14,14 @@ namespace TruequeU.Services
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _context;
 
-        public AuthService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, ApplicationDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _context = context;
         }
 
         public async Task<IdentityResult> Register(string email, string pw, string role)
@@ -46,13 +50,16 @@ namespace TruequeU.Services
             if (user != null && await _userManager.CheckPasswordAsync(user, pwd))
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
-                return GetJWTToken(user, userRoles);
+                var client = await _context.Clients
+                .FirstOrDefaultAsync(c => c.IdentityUserId == user.Id);
+
+                return GetJWTToken(user, userRoles, client?.ClientId);
             }
 
             return null;
         }
 
-        private string GetJWTToken(IdentityUser user, IList<string> roles)
+        private string GetJWTToken(IdentityUser user, IList<string> roles, Guid? clientId)
         {
             var authClaims = new List<Claim>
             {
@@ -68,6 +75,9 @@ namespace TruequeU.Services
 
             var authSignatureKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration["Jwt:Key"]!));
+
+            if (clientId.HasValue)
+                authClaims.Add(new Claim("ClientId", clientId.Value.ToString()));
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],

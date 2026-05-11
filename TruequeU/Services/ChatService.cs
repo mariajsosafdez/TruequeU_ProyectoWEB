@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TruequeU.Interfaces;
 using TruequeU.Models;
 using TruequeU.Persistence;
@@ -13,35 +14,10 @@ namespace TruequeU.Services
         {
             _context = context;
         }
-        //public async Task<ChatDetailDto> GetOrCreateAsync(Guid buyerId, Guid sellerId)
-        //{
-        //    // Busca si ya existe un chat entre estos dos
-        //    var existing = await _context.Chats
-        //        .Include(c => c.Buyer)
-        //        .Include(c => c.Seller)
-        //        .Include(c => c.Messages)
-        //        .FirstOrDefaultAsync(c =>
-        //            c.BuyerId == buyerId && c.SellerId == sellerId);
 
-        //    if (existing is not null)
-        //        return MapToDetailDto(existing);   // Devuelve el que ya existe
-
-        //    // Si no existe, lo crea
-        //    var chat = new Chat
-        //    {
-        //        ChatId = Guid.NewGuid(),
-        //        BuyerId = buyerId,
-        //        SellerId = sellerId,
-        //        CreatedAt = DateTime.UtcNow
-        //    };
-
-        //    _context.Chats.Add(chat);
-        //    await _context.SaveChangesAsync();
-
-        //    return MapToDetailDto(chat);
-        //}
         public async Task<List<Chat>> GetMyChats(Guid clientId)
         {
+
             return await _context.Chats
             .Include(c => c.Buyer)
             .Include(c => c.Seller)
@@ -50,8 +26,9 @@ namespace TruequeU.Services
             .ToListAsync();
         }
 
-        public async Task<Chat> GetChatById(Guid chatId, Guid userId)
+        public async Task<Chat> GetChatById(Guid chatId, Guid clientId)
         {
+
             var chat = await _context.Chats
             .Include(c => c.Buyer)
             .Include(c => c.Seller)
@@ -61,7 +38,7 @@ namespace TruequeU.Services
                 throw new KeyNotFoundException("El chat no existe.");
 
             // Valida que quien pide el chat sea parte de él
-            if (chat.BuyerId != userId && chat.SellerId != userId)
+            if (chat.BuyerId != clientId && chat.SellerId != clientId)
                 throw new UnauthorizedAccessException("No tienes acceso a este chat.");
 
             return chat;
@@ -69,9 +46,10 @@ namespace TruequeU.Services
 
         public async Task<Chat> NewChat(Guid sellerId, Guid buyerId)
         {
+
             var sellerExist = await _context.Clients.FindAsync(sellerId);
 
-            if (!sellerExist)
+            if (sellerExist == null)
                 throw new KeyNotFoundException("El vendedor no existe.");
 
             if (buyerId == sellerId)

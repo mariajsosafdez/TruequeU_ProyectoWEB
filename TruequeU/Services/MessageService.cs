@@ -18,7 +18,7 @@ namespace TruequeU.Services
         {
             var existschat = await _context.Chats.FirstOrDefaultAsync(c => c.ChatId == chatId);
 
-            if (existschat is null)
+            if (existschat == null)
                 throw new KeyNotFoundException("El chat no existe.");
 
             // Si no es ni buyer ni seller, lanza excepcion

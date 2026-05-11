@@ -9,13 +9,13 @@ namespace TruequeU.Models
         public Guid ChatId { get; set; } = Guid.NewGuid();
         [Required]
         public Guid BuyerId { get; set; }
-        [ForeignKey("BuyerID")]
-        public Client? Buyer { get; set; } = null!;
+        [ForeignKey("BuyerId")]
+        public Clients? Buyer { get; set; } = null!;
 
         [Required]
         public Guid SellerId { get; set; }
         [ForeignKey("SellerId")]
-        public Client? Seller { get; set; } = null!;
+        public Clients? Seller { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

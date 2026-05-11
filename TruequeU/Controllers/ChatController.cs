@@ -9,7 +9,7 @@ namespace TruequeU.Controllers
 {
     [ApiController]
     [Route("api/chats")]
-    [Authorize]
+    [Authorize(Roles = "Client")]
     public class ChatController : Controller
     {
         private readonly IChatService _chatService;
@@ -19,9 +19,9 @@ namespace TruequeU.Controllers
             _chatService = chatService;
         }
         private Guid GetCurrentUserId() =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        Guid.Parse(User.FindFirstValue("ClientId")!);
 
-        [HttpPost("{SellerId}")]
+        [HttpPost("{sellerId}")]
         public async Task<IActionResult> NewChat(Guid sellerId)
         {
             try
@@ -45,8 +45,8 @@ namespace TruequeU.Controllers
         {
             try
             {
-                var requesterId = GetCurrentUserId();
-                var chat = await _chatService.GetChatById(chatId, requesterId);
+                var clientId = GetCurrentUserId();
+                var chat = await _chatService.GetChatById(chatId, clientId);
                 return Ok(chat);
             }
             catch (KeyNotFoundException e)
@@ -62,8 +62,8 @@ namespace TruequeU.Controllers
         [HttpGet("myChats")]
         public async Task<IActionResult> GetMyChats()
         {
-            var userId = GetCurrentUserId();
-            var chats = await _chatService.GetMyChats(userId);
+            var clientId = GetCurrentUserId();
+            var chats = await _chatService.GetMyChats(clientId);
             return Ok(chats);
         }
 

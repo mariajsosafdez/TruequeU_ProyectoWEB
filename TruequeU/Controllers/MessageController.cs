@@ -7,7 +7,7 @@ namespace TruequeU.Controllers
 {
     [ApiController]
     [Route("api/chats/{chatId}/messages")]
-    [Authorize]
+    [Authorize(Roles = "Client")]
     public class MessageController : Controller
     {
         private readonly IMessageService _messageService;
@@ -18,8 +18,7 @@ namespace TruequeU.Controllers
         }
 
 
-        private Guid GetCurrentUserId() =>
-            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        private Guid GetCurrentUserId() => Guid.Parse(User.FindFirstValue("ClientId")!);
 
         [HttpGet]
         public async Task<IActionResult> GetMessages(Guid chatId)
