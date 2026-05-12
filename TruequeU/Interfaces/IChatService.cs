@@ -1,14 +1,15 @@
 ﻿using TruequeU.Models;
+using TruequeU.Models.DTO;
 
 namespace TruequeU.Interfaces
 {
     public interface IChatService
     {
 
-        Task<Chat> NewChat(Guid sellerId, Guid buyerId);
+        Task<ChatDetailDTO> NewChat(Guid sellerId, Guid buyerId);
 
-        Task<Chat> GetChatById(Guid chatId, Guid clientId);
+        Task<ChatDetailDTO> GetChatById(Guid chatId, Guid clientId);
 
-        Task<List<Chat>> GetMyChats(Guid clientId);
+        Task<List<ChatSummaryDTO>> GetMyChats(Guid clientId);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TruequeU.Interfaces;
 using TruequeU.Models;
+using TruequeU.Models.DTO;
 using TruequeU.Persistence;
 
 namespace TruequeU.Services
@@ -14,7 +15,20 @@ namespace TruequeU.Services
             _context = context;
         }
 
-        public async Task<List<Message>> GetMessagesByChat(Guid chatId, Guid requesterId)
+        private MessageResponseDTO MapToResponseDto(Message message)
+        {
+            return new MessageResponseDTO
+            {
+                MessageId = message.MessageId,
+                ChatId = message.ChatId,
+                SenderId = message.Sender.ClientId,
+                SenderName = message.Sender.NombreCliente,
+                Content = message.Content,
+                CreatedAt = message.CreatedAt,
+                IsRead = message.IsRead
+            };
+        }
+        public async Task<List<MessageResponseDTO>> GetMessagesByChat(Guid chatId, Guid requesterId)
         {
             var existschat = await _context.Chats.FirstOrDefaultAsync(c => c.ChatId == chatId);
 
@@ -36,13 +50,16 @@ namespace TruequeU.Services
             await _context.SaveChangesAsync();
 
             // Devuelve todos los mensajes ordenados del más antiguo al más reciente
-            return await _context.Messages
-                .Where(m => m.ChatId == chatId)
-                .OrderBy(m => m.CreatedAt)
-                .ToListAsync();
+            var messages = await _context.Messages
+           .Include(m => m.Sender)
+           .Where(m => m.ChatId == chatId)
+           .OrderBy(m => m.CreatedAt)
+           .ToListAsync();
+
+            return messages.Select(m => MapToResponseDto(m)).ToList();
         }
 
-        public async Task<Message> SendMessage(Guid chatId, Guid senderId, string content)
+        public async Task<MessageResponseDTO> SendMessage(Guid chatId, Guid senderId, string content)
         {
             // Valida que el chat exista
             var existsChat = await _context.Chats
@@ -72,7 +89,12 @@ namespace TruequeU.Services
             _context.Messages.Add(newMessage);
             await _context.SaveChangesAsync();
 
-            return newMessage;
+            // Recarga con Include para poder mapear
+            var created = await _context.Messages
+                .Include(m => m.Sender)
+                .FirstAsync(m => m.MessageId == newMessage.MessageId);
+
+            return MapToResponseDto(created);
         }
     }
 }
