@@ -77,5 +77,16 @@ namespace TruequeU.Services
                 })
                 .ToListAsync();
         }
+        public async Task<bool> ChangeStatus(Guid listingId, Status nuevoEstado, Guid clientId)
+        {
+            var listing = await _context.Listings.FindAsync(listingId);
+
+            if (listing == null || listing.OwnerId != clientId) return false;//listing no existe o el Client no es owner
+            if (listing.Estado == Status.Intercambiado) return false;//lógica de negocio, si ya intercambió no se puede devolver
+
+            listing.Estado = nuevoEstado;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

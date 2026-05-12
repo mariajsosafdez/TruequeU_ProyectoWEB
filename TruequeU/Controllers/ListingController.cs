@@ -66,6 +66,20 @@ namespace TruequeU.Controllers
             var listings = await _listingService.GetByOwnerId(ownerId);
             return Ok(listings);
         }
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeStatusDTO entrada)
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;//Toma ClientId del token
+            if (clientId == null) return Unauthorized();
+
+            var success=await _listingService
+                .ChangeStatus(entrada.ListingId,entrada.NuevoEstado,Guid.Parse(clientId));
+
+            if (!success)
+                return BadRequest("No se pudo actualizar el estado");
+
+            return NoContent();
+        }
         public IActionResult Index()
         {
             return View();
