@@ -47,6 +47,63 @@ namespace TruequeU.Controllers
 
             return Ok(listings);
         }
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var listing = await _listingService.GetById(id);
+
+            if (listing == null)
+                return NotFound("La publicación no existe o fue eliminada");
+
+            return Ok(listing);
+        }
+        //como un getAll (lista) pero por propietario, para usar en perfiles
+        [HttpGet("owner/{ownerId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetByOwnerId(Guid ownerId)
+        {
+            var listings = await _listingService.GetByOwnerId(ownerId);
+            return Ok(listings);
+        }
+        [HttpPut("changeStatus")]
+        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeStatusDTO entrada)
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;//Toma ClientId del token
+            if (clientId == null) return Unauthorized();
+
+            var success=await _listingService
+                .ChangeStatus(entrada.ListingId,entrada.NuevoEstado,Guid.Parse(clientId));
+
+            if (!success)
+                return BadRequest("No se pudo actualizar el estado");
+
+            return NoContent();
+        }
+        [HttpPatch("{id}/softDelete")]
+        public async Task<IActionResult> SoftDelete(Guid id)//id del listing a eliminar
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;
+            if (clientId == null) return Unauthorized();
+
+            var success = await _listingService.SoftDelete(id, Guid.Parse(clientId));
+
+            if (!success)
+                return BadRequest("No se pudo eliminar la publicación");
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/favorite")]
+        public async Task<IActionResult> ToggleFavorite(Guid id)
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;
+            if (clientId == null) return Unauthorized();
+
+            var success = await _listingService.ToggleFavorite(id, Guid.Parse(clientId));
+
+            return success ? Ok() : BadRequest("No se pudo procesar la acción de favorito");
+        }
         public IActionResult Index()
         {
             return View();
