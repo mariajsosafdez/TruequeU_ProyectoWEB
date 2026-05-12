@@ -66,7 +66,7 @@ namespace TruequeU.Controllers
             var listings = await _listingService.GetByOwnerId(ownerId);
             return Ok(listings);
         }
-        [HttpPut("{id}/status")]
+        [HttpPut("changeStatus")]
         public async Task<IActionResult> ChangeStatus ([FromBody] ChangeStatusDTO entrada)
         {
             var clientId = User.FindFirst("ClientId")?.Value;//Toma ClientId del token
