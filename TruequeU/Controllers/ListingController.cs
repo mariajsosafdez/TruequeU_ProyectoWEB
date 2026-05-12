@@ -93,6 +93,17 @@ namespace TruequeU.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("{id}/favorite")]
+        public async Task<IActionResult> ToggleFavorite(Guid id)
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;
+            if (clientId == null) return Unauthorized();
+
+            var success = await _listingService.ToggleFavorite(id, Guid.Parse(clientId));
+
+            return success ? Ok() : BadRequest("No se pudo procesar la acción de favorito");
+        }
         public IActionResult Index()
         {
             return View();

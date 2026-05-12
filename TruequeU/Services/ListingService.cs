@@ -99,5 +99,27 @@ namespace TruequeU.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> ToggleFavorite(Guid listingId, Guid clientId)
+        {
+            var favorite = await _context.Favorites
+                .FirstOrDefaultAsync(f => f.ListingId == listingId && f.ClientId == clientId);
+
+            if (favorite != null)
+            {
+                _context.Favorites.Remove(favorite);
+            }
+            else
+            {
+                var newFav = new Favorites
+                {
+                    ListingId = listingId,
+                    ClientId = clientId
+                };
+                await _context.Favorites.AddAsync(newFav);
+            }
+
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

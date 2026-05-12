@@ -12,5 +12,8 @@ namespace TruequeU.Interfaces
         Task<List<ListingResponseDTO>> GetByOwnerId(Guid ownerId);
         Task<bool> ChangeStatus (Guid listingId, Status newEstado, Guid clientId);
         Task<bool> SoftDelete(Guid id, Guid clientId);
+
+        //incluye tmb lógica de favorites
+        Task<bool> ToggleFavorite(Guid listingId, Guid clientId);
     }
 }
