@@ -80,6 +80,19 @@ namespace TruequeU.Controllers
 
             return NoContent();
         }
+        [HttpPatch("{id}/softDelete")]
+        public async Task<IActionResult> SoftDelete(Guid id)//id del listing a eliminar
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;
+            if (clientId == null) return Unauthorized();
+
+            var success = await _listingService.SoftDelete(id, Guid.Parse(clientId));
+
+            if (!success)
+                return BadRequest("No se pudo eliminar la publicación");
+
+            return NoContent();
+        }
         public IActionResult Index()
         {
             return View();

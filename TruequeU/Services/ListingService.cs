@@ -23,7 +23,7 @@ namespace TruequeU.Services
         public async Task<List<ListingResponseDTO>> GetAll()
         {
             //usa el include como una especie de join para obtener la info del owner
-            var listings = await _context.Listings.Include(l=>l.Owner).Where(l=>l.isActive).ToListAsync();
+            var listings = await _context.Listings.Include(l => l.Owner).Where(l => l.isActive).ToListAsync();
 
             // Mapeo a DTO compacto para dar solo la info que usan los cards
             var result = listings.Select(l => new ListingResponseDTO
@@ -85,6 +85,17 @@ namespace TruequeU.Services
             if (listing.Estado == Status.Intercambiado) return false;//lógica de negocio, si ya intercambió no se puede devolver
 
             listing.Estado = nuevoEstado;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> SoftDelete(Guid id, Guid clientId)
+        {
+            var listing = await _context.Listings.FindAsync(id);
+
+            if (listing == null || listing.OwnerId != clientId) return false;//existe listing y el Client logueado es dueño
+
+            listing.isActive = false;//borrado lógico
+
             await _context.SaveChangesAsync();
             return true;
         }
