@@ -24,6 +24,21 @@ namespace TruequeU.Persistence
 
             // Estos métodos son para evitar borrar en cascada y asi mantener el historial, ya que estas tablas están apuntando varias veces con FKs a una misma tabla
 
+            modelBuilder.Entity<Favorites>()
+                .HasKey(f => new { f.ClientId, f.ListingId });
+
+            modelBuilder.Entity<Favorites>()
+                .HasOne(f => f.Client)
+                .WithMany()
+                .HasForeignKey(f => f.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Favorites>()
+                .HasOne(f => f.Listing)
+                .WithMany()
+                .HasForeignKey(f => f.ListingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Chat>()
                 .HasOne(c => c.Buyer)
                 .WithMany()
