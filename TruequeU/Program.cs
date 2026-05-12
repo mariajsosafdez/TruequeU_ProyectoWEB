@@ -49,6 +49,8 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IListingService, ListingService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+
 
 var app = builder.Build();
 
