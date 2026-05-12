@@ -15,5 +15,6 @@ namespace TruequeU.Interfaces
 
         //incluye tmb lógica de favorites
         Task<bool> ToggleFavorite(Guid listingId, Guid clientId);
+        Task<List<ListingResponseDTO>> GetFavoritesByClient(Guid clientId);
     }
 }

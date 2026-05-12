@@ -121,5 +121,23 @@ namespace TruequeU.Services
 
             return await _context.SaveChangesAsync() > 0;
         }
+        public async Task<List<ListingResponseDTO>> GetFavoritesByClient(Guid clientId)
+        {
+            return await _context.Favorites
+                .Where(f => f.ClientId == clientId)
+                .Include(f => f.Listing)
+                .ThenInclude(l => l!.Owner)
+                .Select(f => new ListingResponseDTO
+                {
+                    IdListing = f.ListingId, //id de la tabla intermedia
+                    Titulo = f.Listing!.Titulo, // acceso vía propiedad de navegación
+                    Condicion = f.Listing.Condicion,
+                    Categoria = f.Listing.Categoria,
+                    Precio = f.Listing.Precio,
+                    Estado = f.Listing.Estado,
+                    OwnerName = f.Listing.Owner!.NombreCliente
+                })
+                .ToListAsync();
+        }
     }
 }
