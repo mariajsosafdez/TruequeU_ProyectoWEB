@@ -13,6 +13,7 @@ namespace TruequeU.Persistence
         public DbSet<Report> Reports { get; set; }
         public DbSet<Clients> Clients { get; set; }
         public DbSet<Listings> Listings { get; set; }
+        public DbSet<Favorites> Favorites { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
