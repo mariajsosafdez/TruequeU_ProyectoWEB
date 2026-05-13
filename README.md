@@ -26,3 +26,18 @@ Instalar herramienta global de Entity Framework, luego usar los otros comandos p
 dotnet tool install --global dotnet-ef
 dotnet ef migrations add NombreMigracion
 dotnet ef database update
+```
+## Estructura de Commits
+
+Mantenemos un historial de cambios claro y organizado, usando **feature branching** como había sugerido el profe y siguiendo este esquema para los mensajes de commits:
+
+| Etiqueta | Descripción | Ejemplo |
+|------|-------------|----------|
+| `FEAT` | Nueva funcionalidad | `[FEAT]: agregar endpoint de login` |
+| `FIX` | Corrección de errores | `[FIX]: corregir validación de usuario` |
+| `DOCS` | Cambios en documentación | `[DOCS]: actualizar README` |
+| `CHORE` | Tareas de mantenimiento o configuración | `[CHORE]: actualizar dependencias` |
+| `REFACTOR` | Refactorización sin cambiar funcionalidad | `[REFACTOR]: trasladar lógica del controlador al servicio` |
+
+>[!NOTE]
+>Estamos usando  la rama `develop` para staging del proyecto, allí se hace PR de los cambios agregados en las demás ramas
