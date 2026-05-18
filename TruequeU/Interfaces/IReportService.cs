@@ -1,18 +1,19 @@
 ﻿using TruequeU.Models;
+using TruequeU.Models.DTO;
 
 namespace TruequeU.Interfaces
 {
     public interface IReportService
     {
-        Task<Report> CreateReport(Guid reportedBy, Guid? reportedUserId, Guid? reportedListingId, ReportReason reason, string? comment);
+        Task<ReportResponseDto> CreateReport(Guid reportedBy, CreateReportDto dto);
 
-        Task<List<Report>> GetAllReports();
+        Task<List<ReportResponseDto>> GetAllReports();
 
-        Task<Report> GetReportById(Guid reportId);
+        Task<ReportResponseDto> GetReportById(Guid reportId);
 
-        Task<List<Report>> GetMyReports(Guid clientId);
+        Task<List<ReportResponseDto>> GetMyReports(Guid clientId);
 
-        Task<Report> ResolveReport(Guid reportId, ReportStatus status);
+        Task<ReportResponseDto> ResolveReport(Guid reportId, ResolveReportDto dto);
 
         Task DeleteReport(Guid reportId);
     }

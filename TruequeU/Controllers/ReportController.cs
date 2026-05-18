@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TruequeU.Interfaces;
 using TruequeU.Models;
+using TruequeU.Models.DTO;
 namespace TruequeU.Controllers
 {
     [ApiController]
@@ -19,17 +20,12 @@ namespace TruequeU.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Client")]
-        public async Task<IActionResult> CreateReport(
-            [FromQuery] Guid? reportedUserId,
-            [FromQuery] Guid? reportedListingId,
-            [FromQuery] ReportReason reason,
-            [FromQuery] string? comment)
+        public async Task<IActionResult> CreateReport([FromBody] CreateReportDto dto)
         {
             try
             {
                 var clientId = GetCurrentClientId();
-                var report = await _reportService.CreateReport(
-                    clientId, reportedUserId, reportedListingId, reason, comment);
+                var report = await _reportService.CreateReport(clientId, dto);
                 return CreatedAtAction(nameof(GetReportById), new { reportId = report.ReportId }, report);
             }
             catch (InvalidOperationException e) { return BadRequest(e.Message); }
@@ -67,11 +63,11 @@ namespace TruequeU.Controllers
 
         [HttpPatch("{reportId}/resolve")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ResolveReport(Guid reportId, [FromQuery] ReportStatus status)
+        public async Task<IActionResult> ResolveReport(Guid reportId, [FromBody] ResolveReportDto dto)
         {
             try
             {
-                var report = await _reportService.ResolveReport(reportId, status);
+                var report = await _reportService.ResolveReport(reportId, dto);
                 return Ok(report);
             }
             catch (KeyNotFoundException e) { return NotFound(e.Message); }
