@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TruequeU.Interfaces;
 using TruequeU.Models;
+using TruequeU.Models.DTO;
 using TruequeU.Persistence;
 
 namespace TruequeU.Services
@@ -13,30 +14,45 @@ namespace TruequeU.Services
         {
             _context = context;
         }
-
-        public async Task<Report> CreateReport(Guid reportedBy, Guid? reportedUserId, Guid? reportedListingId, ReportReason reason, string? comment)
+        private ReportResponseDto MapToResponseDto(Report report)
         {
-            // Al menos uno debe estar presente
-            if (reportedUserId is null && reportedListingId is null)
-                throw new InvalidOperationException("Debe reportar un usuario o un listing.");
+            return new ReportResponseDto
+            {
+                ReportId = report.ReportId,
+                ReportedBy = report.ReportedBy,
+                ReporterName = report.Reporter?.NombreCliente ?? string.Empty,
+                ReportedUserId = report.ReportedUserId,
+                ReportedUserName = report.ReportedUser?.NombreCliente,
+                ReportedListingId = report.ReportedListingId,
+                ReportedListingTitulo = report.ReportedListing?.Titulo,
+                Reason = report.Reason.ToString(),
+                Comment = report.Comment,
+                Status = report.Status.ToString(),
+                CreatedAt = report.CreatedAt
+            };
+        }
 
-            if (reportedUserId == reportedBy)
+        public async Task<ReportResponseDto> CreateReport(Guid reportedBy, CreateReportDto dto)
+        {
+            //No valida si llegan ambos nulos o con contenido, ya que eso lo hace el mismo .NET al crear el obj
+
+            if (dto.ReportedUserId == reportedBy)
                 throw new InvalidOperationException("No puedes reportarte a ti mismo.");
 
             // Valida que el usuario reportado exista 
-            if (reportedUserId != null)
+            if (dto.ReportedUserId != null)
             {
                 var userExists = await _context.Clients
-                    .AnyAsync(c => c.ClientId == reportedUserId);
+                    .AnyAsync(c => c.ClientId == dto.ReportedUserId);
                 if (!userExists)
                     throw new KeyNotFoundException("El usuario reportado no existe.");
             }
 
             // Valida que el listing reportado exista
-            if (reportedListingId != null)
+            if (dto.ReportedListingId != null)
             {
                 var listingExists = await _context.Listings
-                    .AnyAsync(l => l.IdListing == reportedListingId);
+                    .AnyAsync(l => l.IdListing == dto.ReportedListingId);
                 if (!listingExists)
                     throw new KeyNotFoundException("El listing reportado no existe.");
             }
@@ -45,10 +61,10 @@ namespace TruequeU.Services
             {
                 ReportId = Guid.NewGuid(),
                 ReportedBy = reportedBy,
-                ReportedUserId = reportedUserId,
-                ReportedListingId = reportedListingId,
-                Reason = reason,
-                Comment = comment,
+                ReportedUserId = dto.ReportedUserId,
+                ReportedListingId = dto.ReportedListingId,
+                Reason = dto.Reason,
+                Comment = dto.Comment,
                 CreatedAt = DateTime.UtcNow,
                 Status = ReportStatus.Pendiente
             };
@@ -56,21 +72,29 @@ namespace TruequeU.Services
             _context.Reports.Add(newReport);
             await _context.SaveChangesAsync();
 
-            return newReport;
+            var created = await _context.Reports
+            .Include(r => r.Reporter)
+            .Include(r => r.ReportedUser)
+            .Include(r => r.ReportedListing)
+            .FirstAsync(r => r.ReportId == newReport.ReportId);
+
+            return MapToResponseDto(created);
         }
 
-        public async Task<List<Report>> GetAllReports()
+        public async Task<List<ReportResponseDto>> GetAllReports()
         {
-            return await _context.Reports
-                .Include(r => r.Reporter)
-                .Include(r => r.ReportedUser)
-                .Include(r => r.ReportedListing)
-                .Where(r => r.IsActive)
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+            var reports = await _context.Reports
+            .Include(r => r.Reporter)
+            .Include(r => r.ReportedUser)
+            .Include(r => r.ReportedListing)
+            .Where(r => r.IsActive)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+
+            return reports.Select(r => MapToResponseDto(r)).ToList();
         }
 
-        public async Task<Report> GetReportById(Guid reportId)
+        public async Task<ReportResponseDto> GetReportById(Guid reportId)
         {
             var report = await _context.Reports
                 .Include(r => r.Reporter)
@@ -81,35 +105,40 @@ namespace TruequeU.Services
             if (report == null)
                 throw new KeyNotFoundException("El reporte no existe.");
 
-            return report;
+            return MapToResponseDto(report);
         }
 
-        public async Task<List<Report>> GetMyReports(Guid clientId)
+        public async Task<List<ReportResponseDto>> GetMyReports(Guid clientId)
         {
-            return await _context.Reports
-                .Include(r => r.ReportedUser)
-                .Include(r => r.ReportedListing)
-                .Where(r => r.ReportedBy == clientId && r.IsActive)
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+            var reports = await _context.Reports
+            .Include(r => r.ReportedUser)
+            .Include(r => r.ReportedListing)
+            .Where(r => r.ReportedBy == clientId && r.IsActive)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+
+            return reports.Select(r => MapToResponseDto(r)).ToList();
         }
 
-        public async Task<Report> ResolveReport(Guid reportId, ReportStatus status)
+        public async Task<ReportResponseDto> ResolveReport(Guid reportId, ResolveReportDto dto)
         {
             var report = await _context.Reports
-                .FirstOrDefaultAsync(r => r.ReportId == reportId);
+         .Include(r => r.Reporter)
+         .Include(r => r.ReportedUser)
+         .Include(r => r.ReportedListing)
+         .FirstOrDefaultAsync(r => r.ReportId == reportId && r.IsActive);
 
-            if (report == null)
+            if (report is null)
                 throw new KeyNotFoundException("El reporte no existe.");
 
-            // Solo puede cambiar a Resuelto o Descartado
-            if (status == ReportStatus.Pendiente)
+            //Solo cambiar el estado a Resuelto o Descartado
+            if (dto.Status == ReportStatus.Pendiente)
                 throw new InvalidOperationException("No puedes cambiar el estado a Pendiente.");
 
-            report.Status = status;
+            report.Status = dto.Status;
             await _context.SaveChangesAsync();
 
-            return report;
+            return MapToResponseDto(report);
         }
 
         public async Task DeleteReport(Guid reportId)
