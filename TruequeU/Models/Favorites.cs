@@ -6,10 +6,8 @@ namespace TruequeU.Models
 {
     public class Favorites
     {
-        [Key, Column(Order = 0)]
         public Guid ClientId { get; set; }
 
-        [Key, Column(Order = 1)]
         public Guid ListingId { get; set; }
 
         [ForeignKey("ClientId")]

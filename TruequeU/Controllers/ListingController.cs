@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TruequeU.Filters;
 using TruequeU.Interfaces;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
@@ -10,6 +11,7 @@ namespace TruequeU.Controllers
     [ApiController]
     [Route("/api/[controller]")]
     [Authorize(Roles = "Client")]
+    [ServiceFilter(typeof(ModerationLogFilter))]
     public class ListingController : Controller
     {
         private readonly IListingService _listingService;

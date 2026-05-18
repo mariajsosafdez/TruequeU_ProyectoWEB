@@ -29,7 +29,7 @@ namespace TruequeU.Models
         [Required]
         public float Precio { get; set; }
         public Location Ubicacion { get; set; } = Location.SedePalmas;
-        public bool isActive = true;
+        public bool isActive { get; set; } = true;
 
         [Required]
         public Guid OwnerId { get; set; }
