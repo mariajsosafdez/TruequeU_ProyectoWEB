@@ -14,6 +14,8 @@ namespace TruequeU.Persistence
         public DbSet<Clients> Clients { get; set; }
         public DbSet<Listings> Listings { get; set; }
         public DbSet<Favorites> Favorites { get; set; }
+        public DbSet<ModerationLog> ModerationLogs { get; set; }
+
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -22,34 +24,36 @@ namespace TruequeU.Persistence
             base.OnModelCreating(modelBuilder);
 
 
-            // Estos métodos son para evitar borrar en cascada y asi mantener el historial, ya que estas tablas están apuntando varias veces con FKs a una misma tabla
+            // Estos métodos son para evitar borrar en cascada y asi mantener el historial, ya que estas tablas están apuntando varias veces con FKs a una misma tabla.
+
+            // Si no se colocan, no se pueden hacer las migraciones
 
             modelBuilder.Entity<Favorites>()
                 .HasKey(f => new { f.ClientId, f.ListingId });
 
-            modelBuilder.Entity<Favorites>()
-                .HasOne(f => f.Client)
-                .WithMany()
-                .HasForeignKey(f => f.ClientId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Favorites>()
+            //    .HasOne(f => f.Client)
+            //    .WithMany()
+            //    .HasForeignKey(f => f.ClientId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Favorites>()
-                .HasOne(f => f.Listing)
-                .WithMany()
-                .HasForeignKey(f => f.ListingId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<Favorites>()
+            //    .HasOne(f => f.Listing)
+            //    .WithMany()
+            //    .HasForeignKey(f => f.ListingId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Chat>()
                 .HasOne(c => c.Buyer)
                 .WithMany()
                 .HasForeignKey(c => c.BuyerId)
-                .OnDelete(DeleteBehavior.NoAction);   
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Chat>()
                 .HasOne(c => c.Seller)
                 .WithMany()
                 .HasForeignKey(c => c.SellerId)
-                .OnDelete(DeleteBehavior.NoAction);  
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reporter)
@@ -67,6 +71,18 @@ namespace TruequeU.Persistence
                 .HasOne(r => r.ReportedListing)
                 .WithMany()
                 .HasForeignKey(r => r.ReportedListingId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Favorites>()
+                 .HasOne(f => f.Client)
+                 .WithMany()
+                 .HasForeignKey(f => f.ClientId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Favorites>()
+                .HasOne(f => f.Listing)
+                .WithMany()
+                .HasForeignKey(f => f.ListingId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TruequeU.Filters;
 using TruequeU.Interfaces;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
@@ -10,6 +11,7 @@ namespace TruequeU.Controllers
     [ApiController]
     [Route("api/chats")]
     [Authorize(Roles = "Client")]
+    [ServiceFilter(typeof(ModerationLogFilter))]
     public class ChatController : Controller
     {
         private readonly IChatService _chatService;

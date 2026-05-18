@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using TruequeU.Filters;
 using TruequeU.Interfaces;
 using TruequeU.Persistence;
 using TruequeU.Services;
@@ -50,6 +51,9 @@ builder.Services.AddScoped<IListingService, ListingService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IModerationLogService, ModerationLogService>();
+builder.Services.AddScoped<ModerationLogFilter>();
+
 
 
 var app = builder.Build();

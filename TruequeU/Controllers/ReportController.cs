@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TruequeU.Filters;
 using TruequeU.Interfaces;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
@@ -9,6 +10,7 @@ namespace TruequeU.Controllers
     [ApiController]
     [Route("api/reports")]
     [Authorize]
+    [ServiceFilter(typeof(ModerationLogFilter))]
     public class ReportController : Controller
     {
         private readonly IReportService _reportService;
