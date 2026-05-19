@@ -106,6 +106,16 @@ namespace TruequeU.Controllers
 
             return success ? Ok() : BadRequest("No se pudo procesar la acción de favorito");
         }
+
+        [HttpGet("favorites")]
+        public async Task<IActionResult> GetFavorites()
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;
+            if (clientId == null) return Unauthorized();
+
+            var favorites = await _listingService.GetFavoritesByClient(Guid.Parse(clientId));
+            return Ok(favorites);
+        }
         public IActionResult Index()
         {
             return View();
