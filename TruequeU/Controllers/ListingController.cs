@@ -69,7 +69,7 @@ namespace TruequeU.Controllers
             return Ok(listings);
         }
         [HttpPut("changeStatus")]
-        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeStatusDTO entrada)
+        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeListingStatusDTO entrada)
         {
             var clientId = User.FindFirst("ClientId")?.Value;//Toma ClientId del token
             if (clientId == null) return Unauthorized();

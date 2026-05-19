@@ -3,6 +3,7 @@ using TruequeU.Persistence;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
 using Microsoft.EntityFrameworkCore;
+using TruequeU.Enums;
 
 namespace TruequeU.Services
 {
@@ -77,12 +78,12 @@ namespace TruequeU.Services
                 })
                 .ToListAsync();
         }
-        public async Task<bool> ChangeStatus(Guid listingId, Status nuevoEstado, Guid clientId)
+        public async Task<bool> ChangeStatus(Guid listingId, ListingStatus nuevoEstado, Guid clientId)
         {
             var listing = await _context.Listings.FindAsync(listingId);
 
             if (listing == null || listing.OwnerId != clientId) return false;//listing no existe o el Client no es owner
-            if (listing.Estado == Status.Intercambiado) return false;//lógica de negocio, si ya intercambió no se puede devolver
+            if (listing.Estado == ListingStatus.Intercambiado) return false;//lógica de negocio, si ya intercambió no se puede devolver
 
             listing.Estado = nuevoEstado;
             await _context.SaveChangesAsync();

@@ -1,4 +1,5 @@
 ﻿
+using TruequeU.Enums;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
 
@@ -10,7 +11,7 @@ namespace TruequeU.Interfaces
         Task<List<ListingResponseDTO>> GetAll();
         Task<ListingDetailResponseDTO?> GetById(Guid id);
         Task<List<ListingResponseDTO>> GetByOwnerId(Guid ownerId);
-        Task<bool> ChangeStatus (Guid listingId, Status newEstado, Guid clientId);
+        Task<bool> ChangeStatus (Guid listingId, ListingStatus newEstado, Guid clientId);
         Task<bool> SoftDelete(Guid id, Guid clientId);
 
         //incluye tmb lógica de favorites
