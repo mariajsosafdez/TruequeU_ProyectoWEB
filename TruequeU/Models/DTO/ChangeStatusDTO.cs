@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TruequeU.Enums;
 
 namespace TruequeU.Models.DTO
 {
@@ -8,7 +9,7 @@ namespace TruequeU.Models.DTO
         public Guid ListingId { get; set; }
 
         [Required(ErrorMessage = "El nuevo estado es obligatorio")]
-        [EnumDataType(typeof(Status), ErrorMessage = "El estado proporcionado no es válido para TruequeU")]
-        public Status NuevoEstado { get; set; }
+        [EnumDataType(typeof(ListingStatus), ErrorMessage = "El estado proporcionado no es válido para TruequeU")]
+        public ListingStatus NuevoEstado { get; set; }
     }
 }

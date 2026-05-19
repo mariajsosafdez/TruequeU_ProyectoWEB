@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TruequeU.Enums;
 using TruequeU.Models;
 
 public class CreateReportDto : IValidatableObject

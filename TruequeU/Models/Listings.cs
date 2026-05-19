@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TruequeU.Enums;
 
 namespace TruequeU.Models
 {
-    public enum Condition { Nuevo, Usado }
-    public enum Status { Disponible, Reservado, Intercambiado }
-    public enum Category { Libros, Utiles, Tecnologia, Accesorios, Otro}
-    public enum Location { SedePalmas, SedeZuniga }
     public class Listings
     {
         [Key]
@@ -22,13 +19,13 @@ namespace TruequeU.Models
         [MaxLength(500)]
         public string Descripcion { get; set; }
         [Required]
-        public Condition Condicion { get; set; }
-        public Status Estado { get; set; } = Status.Disponible;
+        public ListingCondition Condicion { get; set; }
+        public ListingStatus Estado { get; set; } = ListingStatus.Disponible;
         [Required]
-        public Category Categoria { get; set; }
+        public ListingCategory Categoria { get; set; }
         [Required]
         public float Precio { get; set; }
-        public Location Ubicacion { get; set; } = Location.SedePalmas;
+        public ListingLocation Ubicacion { get; set; } = ListingLocation.SedePalmas;
         public bool isActive { get; set; } = true;
 
         [Required]
