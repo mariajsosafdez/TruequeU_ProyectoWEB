@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TruequeU.Enums;
 
 namespace TruequeU.Models.DTO
 {
