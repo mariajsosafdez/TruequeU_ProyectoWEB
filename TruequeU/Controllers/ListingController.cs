@@ -69,7 +69,7 @@ namespace TruequeU.Controllers
             return Ok(listings);
         }
         [HttpPut("changeStatus")]
-        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeStatusDTO entrada)
+        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeListingStatusDTO entrada)
         {
             var clientId = User.FindFirst("ClientId")?.Value;//Toma ClientId del token
             if (clientId == null) return Unauthorized();
@@ -105,6 +105,15 @@ namespace TruequeU.Controllers
             var success = await _listingService.ToggleFavorite(id, Guid.Parse(clientId));
 
             return success ? Ok() : BadRequest("No se pudo procesar la acción de favorito");
+        }
+        [HttpGet("favorites")]
+        public async Task<IActionResult> GetFavorites()
+        {
+            var clientId = User.FindFirst("ClientId")?.Value;
+            if (clientId == null) return Unauthorized();
+
+            var favorites = await _listingService.GetFavoritesByClient(Guid.Parse(clientId));
+            return Ok(favorites);
         }
         public IActionResult Index()
         {

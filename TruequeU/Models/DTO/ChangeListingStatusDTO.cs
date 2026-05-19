@@ -3,7 +3,7 @@ using TruequeU.Enums;
 
 namespace TruequeU.Models.DTO
 {
-    public class ChangeStatusDTO
+    public class ChangeListingStatusDTO
     {
         [Required(ErrorMessage = "El Id de publicación es obligatorio")]
         public Guid ListingId { get; set; }
