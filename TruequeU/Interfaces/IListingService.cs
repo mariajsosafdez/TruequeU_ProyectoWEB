@@ -1,4 +1,5 @@
 ﻿
+using TruequeU.DTOs;
 using TruequeU.Enums;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
@@ -17,5 +18,8 @@ namespace TruequeU.Interfaces
         //incluye tmb lógica de favorites
         Task<bool> ToggleFavorite(Guid listingId, Guid clientId);
         Task<List<ListingResponseDTO>> GetFavoritesByClient(Guid clientId);
+
+        //filtros
+        Task<List<ListingResponseDTO>> GetFiltered(ListingFilterDto filters);
     }
 }
