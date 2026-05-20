@@ -15,69 +15,80 @@ namespace TruequeU.Services
         {
             _context = context;
         }
-        public async Task<Listings> Create(Listings listing)
+        public async Task<ListingResponseDTO> Create(Listings listing, List<string> ImageUrls)
         {
             _context.Listings.Add(listing);
-            await _context.SaveChangesAsync();
-            return listing;
+
+            if (ImageUrls != null && ImageUrls.Any())
+            {
+                foreach (var url in ImageUrls)
+                {
+                    var newImage = new ListingImage
+                    {
+                        Url = url,
+                        ListingID = listing.IdListing //asignamos FK
+                    };
+
+                    // se agregan al DbSet de forma independiente pq tienen su propia tabla
+                    _context.ListingImages.Add(newImage);
+                }
+            }
+
+            await _context.SaveChangesAsync();//guarda una única vez
+            return MapToResponseDTO(listing,ImageUrls);//retorna el objeto
         }
 
         public async Task<List<ListingResponseDTO>> GetAll()
         {
             //usa el include como una especie de join para obtener la info del owner
-            var listings = await _context.Listings.Include(l => l.Owner).Where(l => l.isActive).ToListAsync();
+            var listings = await _context.Listings
+                .Include(l => l.Owner)
+                .Include(l=>l.Images)
+                .Where(l => l.isActive)
+                .ToListAsync();
 
-            // Mapeo a DTO compacto para dar solo la info que usan los cards
-            var result = listings.Select(l => new ListingResponseDTO
-            {
-                IdListing = l.IdListing,
-                Titulo = l.Titulo,
-                Condicion = l.Condicion,
-                Categoria = l.Categoria,
-                Precio = l.Precio,
-                Estado = l.Estado,
-                OwnerName = l.Owner!.NombreCliente
-            }).ToList();
-
-            return result;
+            return listings.Select(l => MapToResponseDTO(l)).ToList(); ;
         }
         //traer un solo listing por id (Detalles)
         public async Task<ListingDetailResponseDTO?> GetById(Guid id)
         {
-            return await _context.Listings
-                .Include(l => l.Owner)//como si fuera un join
+            var listing = await _context.Listings
+                .Include(l => l.Owner)
+                .Include(l => l.Images)
                 .Where(l => l.IdListing == id && l.isActive)
-                .Select(l => new ListingDetailResponseDTO
-                {
-                    IdListing = l.IdListing,
-                    Titulo = l.Titulo,
-                    Descripcion = l.Descripcion,
-                    Condicion = l.Condicion,
-                    Categoria = l.Categoria,
-                    Precio = l.Precio,
-                    Estado = l.Estado,
-                    OwnerName = l.Owner!.NombreCliente,
-                    OwnerId = l.OwnerId//Saca lo que necesita del dueño (Client que creó el listing)
-                })
                 .FirstOrDefaultAsync();
+            if (listing == null) return null;
+
+            var allUrls = listing.Images.Select(img => img.Url).ToList();
+            return new ListingDetailResponseDTO//retorna el details
+            {
+                IdListing = listing.IdListing,
+                Titulo = listing.Titulo,
+                Condicion = listing.Condicion,
+                Categoria = listing.Categoria,
+                Precio = listing.Precio,
+                Estado = listing.Estado,
+                OwnerName = listing.Owner?.NombreCliente ?? "Estudiante EIA",
+                PreviewImageUrl = allUrls.FirstOrDefault() ?? "placeholder.png",
+
+                Descripcion = listing.Descripcion,
+                Ubicacion = listing.Ubicacion,
+                OwnerId = listing.OwnerId,
+                AllImagesUrls = allUrls.Skip(1).ToList()
+            };
+
         }
 
         //traer los listings que creó un Client (owner)
         public async Task<List<ListingResponseDTO>> GetByOwnerId(Guid ownerId)//id de Client
         {
-            return await _context.Listings
-                .Where(l => (l.OwnerId == ownerId) && l.isActive)
-                .Select(l => new ListingResponseDTO
-                {
-                    IdListing = l.IdListing,
-                    Titulo = l.Titulo,
-                    Condicion = l.Condicion,
-                    Categoria = l.Categoria,
-                    Precio = l.Precio,
-                    Estado = l.Estado,
-                    OwnerName = l.Owner!.NombreCliente
-                })
+            var listings = await _context.Listings
+                .Include(l => l.Owner)
+                .Include(l => l.Images)
+                .Where(l => l.OwnerId == ownerId && l.isActive)
                 .ToListAsync();
+
+            return listings.Select(l => MapToResponseDTO(l)).ToList();
         }
         public async Task<bool> ChangeStatus(Guid listingId, ListingStatus nuevoEstado, Guid clientId)
         {
@@ -125,27 +136,23 @@ namespace TruequeU.Services
         }
         public async Task<List<ListingResponseDTO>> GetFavoritesByClient(Guid clientId)
         {
-            return await _context.Favorites
+            var favs= await _context.Favorites
                 .Where(f => f.ClientId == clientId)
                 .Include(f => f.Listing)
                 .ThenInclude(l => l!.Owner)
-                .Select(f => new ListingResponseDTO
-                {
-                    IdListing = f.ListingId, //id de la tabla intermedia
-                    Titulo = f.Listing!.Titulo, // acceso vía propiedad de navegación
-                    Condicion = f.Listing.Condicion,
-                    Categoria = f.Listing.Categoria,
-                    Precio = f.Listing.Precio,
-                    Estado = f.Listing.Estado,
-                    OwnerName = f.Listing.Owner!.NombreCliente
-                })
+                .Include(f => f.Listing)
+                .ThenInclude(l => l!.Images)
                 .ToListAsync();
+            return favs.Select(l => MapToResponseDTO(l.Listing!)).ToList();
         }
 
         public async Task<List<ListingResponseDTO>> GetFiltered(ListingFilterDto filters)
         {
             //Trae datos del owner (Include es como un join) y valida que está activo
-            var query = _context.Listings.Include(l=>l.Owner).Where(l=>l.isActive);
+            var query = _context.Listings
+                .Include(l=>l.Owner)
+                .Include(l=> l.Images)
+                .Where(l=>l.isActive);
 
             //va "construyendo" el query con cada filtro
             //no trae todavía la lista sino que va agregando cada requerimiento del pedido
@@ -170,7 +177,14 @@ namespace TruequeU.Services
             if (filters.PrecioMax.HasValue)
                 query = query.Where(l => l.Precio <= filters.PrecioMax.Value);
 
-            return await query.Select(l => new ListingResponseDTO//mapea al ResponseDTO para usar cards del front
+            var listings= await query.ToListAsync();//trae la lista al final con todos los filtros aplicados
+
+            return listings.Select(l => MapToResponseDTO(l)).ToList();//mapea a responseDTO con fn auxiliar
+        }
+
+        private static ListingResponseDTO MapToResponseDTO(Listings l, List<string>? imageUrls = null)
+        {
+            return new ListingResponseDTO
             {
                 IdListing = l.IdListing,
                 Titulo = l.Titulo,
@@ -178,8 +192,11 @@ namespace TruequeU.Services
                 Categoria = l.Categoria,
                 Precio = l.Precio,
                 Estado = l.Estado,
-                OwnerName = l.Owner!.NombreCliente
-            }).ToListAsync();//trae la lista al final con todos los filtros aplicados
+                OwnerName = l.Owner?.NombreCliente ?? "Estudiante EIA",
+                PreviewImageUrl = imageUrls?.FirstOrDefault()
+                    ?? l.Images?.Select(img => img.Url).FirstOrDefault()
+                    ?? "placeholder.png"
+            };
         }
     }
 }

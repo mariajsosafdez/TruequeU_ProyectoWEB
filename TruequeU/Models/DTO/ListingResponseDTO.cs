@@ -11,5 +11,7 @@ namespace TruequeU.Models.DTO
         public ListingCategory Categoria { get; set; } 
         public float Precio { get; set; }
         public string OwnerName { get; set; }
+        // El card solo usa la primer img para mostrar de portada
+        public string? PreviewImageUrl { get; set; }
     }
 }

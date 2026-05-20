@@ -25,5 +25,6 @@ namespace TruequeU.Models.DTO
         [Range(0, 10000000, ErrorMessage = "El precio debe estar entre 0 y 10.000.000")]
         public float Precio { get; set; }
         public ListingLocation Ubicacion { get; set; }
+        public List<string> ImageUrls { get; set; } = new List<string>();
     }
 }
