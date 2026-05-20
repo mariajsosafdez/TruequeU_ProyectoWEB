@@ -52,22 +52,31 @@ namespace TruequeU.Services
         //traer un solo listing por id (Detalles)
         public async Task<ListingDetailResponseDTO?> GetById(Guid id)
         {
-            return await _context.Listings
-                .Include(l => l.Owner)//como si fuera un join
+            var listing = await _context.Listings
+                .Include(l => l.Owner)
+                .Include(l => l.Images)
                 .Where(l => l.IdListing == id && l.isActive)
-                .Select(l => new ListingDetailResponseDTO
-                {
-                    IdListing = l.IdListing,
-                    Titulo = l.Titulo,
-                    Descripcion = l.Descripcion,
-                    Condicion = l.Condicion,
-                    Categoria = l.Categoria,
-                    Precio = l.Precio,
-                    Estado = l.Estado,
-                    OwnerName = l.Owner!.NombreCliente,
-                    OwnerId = l.OwnerId//Saca lo que necesita del dueño (Client que creó el listing)
-                })
                 .FirstOrDefaultAsync();
+            if (listing == null) return null;
+
+            var allUrls = listing.Images.Select(img => img.Url).ToList();
+            return new ListingDetailResponseDTO//retorna el details
+            {
+                IdListing = listing.IdListing,
+                Titulo = listing.Titulo,
+                Condicion = listing.Condicion,
+                Categoria = listing.Categoria,
+                Precio = listing.Precio,
+                Estado = listing.Estado,
+                OwnerName = listing.Owner?.NombreCliente ?? "Estudiante EIA",
+                PreviewImageUrl = allUrls.FirstOrDefault() ?? "placeholder.png",
+
+                Descripcion = listing.Descripcion,
+                Ubicacion = listing.Ubicacion,
+                OwnerId = listing.OwnerId,
+                AllImagesUrls = allUrls.Skip(1).ToList()
+            };
+
         }
 
         //traer los listings que creó un Client (owner)
