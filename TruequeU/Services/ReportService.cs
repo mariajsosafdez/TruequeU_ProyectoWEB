@@ -66,7 +66,7 @@ namespace TruequeU.Services
                 Reason = dto.Reason,
                 Comment = dto.Comment,
                 CreatedAt = DateTime.UtcNow,
-                Status = ReportStatus.Pendiente
+                Status = Enums.ReportStatus.Pendiente
             };
 
             _context.Reports.Add(newReport);
@@ -132,7 +132,7 @@ namespace TruequeU.Services
                 throw new KeyNotFoundException("El reporte no existe.");
 
             //Solo cambiar el estado a Resuelto o Descartado
-            if (dto.Status == ReportStatus.Pendiente)
+            if (dto.Status == Enums.ReportStatus.Pendiente)
                 throw new InvalidOperationException("No puedes cambiar el estado a Pendiente.");
 
             report.Status = dto.Status;

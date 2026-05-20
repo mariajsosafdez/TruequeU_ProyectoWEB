@@ -38,7 +38,7 @@ namespace TruequeU.Controllers
                 OwnerId = Guid.Parse(clientId)
             };
 
-            var result = await _listingService.Create(newListing);
+            var result = await _listingService.Create(newListing, model.ImageUrls);
 
             return Ok(result);
         }

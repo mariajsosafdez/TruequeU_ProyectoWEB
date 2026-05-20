@@ -15,6 +15,7 @@ namespace TruequeU.Persistence
         public DbSet<Listings> Listings { get; set; }
         public DbSet<Favorites> Favorites { get; set; }
         public DbSet<ModerationLog> ModerationLogs { get; set; }
+        public DbSet<ListingImage> ListingImages { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
@@ -83,6 +84,12 @@ namespace TruequeU.Persistence
                 .HasOne(f => f.Listing)
                 .WithMany()
                 .HasForeignKey(f => f.ListingId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ListingImage>()
+                .HasOne(li => li.Listing)
+                .WithMany(l => l.Images) //para navegación bidireccional y "join" con listing
+                .HasForeignKey(li => li.ListingID)
                 .OnDelete(DeleteBehavior.NoAction);
         }
 

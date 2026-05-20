@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using System.Text.Json.Serialization;
 using TruequeU.Filters;
 using TruequeU.Interfaces;
 using TruequeU.Persistence;
@@ -14,7 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectonString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectonString));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
     options.Password.RequireDigit = true;//La contraseña debe tener número
     options.Password.RequiredLength = 6;//Tamaño min 6
     options.Password.RequireNonAlphanumeric = false;//No necesita especiales
@@ -42,7 +44,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -54,6 +60,16 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IModerationLogService, ModerationLogService>();
 builder.Services.AddScoped<ModerationLogFilter>();
 
+//Necesario para que el navegador no bloquee la conexión
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 
 var app = builder.Build();
@@ -65,6 +81,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseCors("FrontendPolicy");
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -73,3 +91,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
