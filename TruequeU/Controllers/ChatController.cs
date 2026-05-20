@@ -42,6 +42,14 @@ namespace TruequeU.Controllers
             }
         }
 
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyChats()
+        {
+            var clientId = GetCurrentUserId();
+            var chats = await _chatService.GetMyChats(clientId);
+            return Ok(chats);
+        }
+
         [HttpGet("{chatId}")]
         public async Task<IActionResult> GetChatById(Guid chatId)
         {
@@ -59,14 +67,6 @@ namespace TruequeU.Controllers
             {
                 return Unauthorized(e.Message);
             }
-        }
-
-        [HttpGet("myChats")]
-        public async Task<IActionResult> GetMyChats()
-        {
-            var clientId = GetCurrentUserId();
-            var chats = await _chatService.GetMyChats(clientId);
-            return Ok(chats);
         }
 
         public IActionResult Index()

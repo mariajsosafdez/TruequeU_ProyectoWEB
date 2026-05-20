@@ -110,10 +110,9 @@ namespace TruequeU.Services
 
             // Busca si ya existe un chat entre estos dos
             var existing = await _context.Chats
-                .Include(c => c.Buyer)
-                .Include(c => c.Seller)
-                .FirstOrDefaultAsync(c =>
-                    c.BuyerId == buyerId && c.SellerId == sellerId);
+            .Include(c => c.Buyer)
+            .Include(c => c.Seller)
+            .FirstOrDefaultAsync(c => c.BuyerId == buyerId && c.SellerId == sellerId);
 
             if (existing != null)
                 return MapToDetailDto(existing);
