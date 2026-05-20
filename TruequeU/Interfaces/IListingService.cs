@@ -8,7 +8,7 @@ namespace TruequeU.Interfaces
 {
     public interface IListingService
     {
-        Task<Listings> Create(Listings listing, List<string> ImageUrls);
+        Task<ListingResponseDTO> Create(Listings listing, List<string> ImageUrls);
         Task<List<ListingResponseDTO>> GetAll();
         Task<ListingDetailResponseDTO?> GetById(Guid id);
         Task<List<ListingResponseDTO>> GetByOwnerId(Guid ownerId);
