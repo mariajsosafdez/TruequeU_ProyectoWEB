@@ -1,25 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TruequeU.Enums;
 
 namespace TruequeU.Models
 {
-    public enum ReportReason
-    {
-        ContenidoInapropiado,
-        Spam,
-        FraudeOEstafa,
-        ProductoFalso,
-        AcosoOAbuso,
-        Otro
-    }
-
-    public enum ReportStatus
-    {
-        Pendiente,
-        Resuelto,
-        Descartado
-    }
-
     public class Report
     {
         [Key]

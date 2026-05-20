@@ -1,8 +1,10 @@
-﻿using TruequeU.Interfaces;
-using TruequeU.Persistence;
+﻿using Microsoft.EntityFrameworkCore;
+using TruequeU.DTOs;
+using TruequeU.Enums;
+using TruequeU.Interfaces;
 using TruequeU.Models;
 using TruequeU.Models.DTO;
-using Microsoft.EntityFrameworkCore;
+using TruequeU.Persistence;
 
 namespace TruequeU.Services
 {
@@ -77,12 +79,12 @@ namespace TruequeU.Services
                 })
                 .ToListAsync();
         }
-        public async Task<bool> ChangeStatus(Guid listingId, Status nuevoEstado, Guid clientId)
+        public async Task<bool> ChangeStatus(Guid listingId, ListingStatus nuevoEstado, Guid clientId)
         {
             var listing = await _context.Listings.FindAsync(listingId);
 
             if (listing == null || listing.OwnerId != clientId) return false;//listing no existe o el Client no es owner
-            if (listing.Estado == Status.Intercambiado) return false;//lógica de negocio, si ya intercambió no se puede devolver
+            if (listing.Estado == ListingStatus.Intercambiado) return false;//lógica de negocio, si ya intercambió no se puede devolver
 
             listing.Estado = nuevoEstado;
             await _context.SaveChangesAsync();
@@ -138,6 +140,46 @@ namespace TruequeU.Services
                     OwnerName = f.Listing.Owner!.NombreCliente
                 })
                 .ToListAsync();
+        }
+
+        public async Task<List<ListingResponseDTO>> GetFiltered(ListingFilterDto filters)
+        {
+            //Trae datos del owner (Include es como un join) y valida que está activo
+            var query = _context.Listings.Include(l=>l.Owner).Where(l=>l.isActive);
+
+            //va "construyendo" el query con cada filtro
+            //no trae todavía la lista sino que va agregando cada requerimiento del pedido
+            if (!string.IsNullOrEmpty(filters.Titulo))
+                query = query.Where(l => l.Titulo.ToLower().Contains(filters.Titulo.ToLower()));
+
+            if (filters.Estado.HasValue)
+                query = query.Where(l => l.Estado == filters.Estado.Value);
+
+            if (filters.Categoria.HasValue)
+                query = query.Where(l => l.Categoria == filters.Categoria.Value);
+
+            if (filters.Condicion.HasValue)
+                query = query.Where(l => l.Condicion == filters.Condicion.Value);
+
+            if (filters.Ubicacion.HasValue)
+                query = query.Where(l => l.Ubicacion == filters.Ubicacion.Value);
+
+            if (filters.PrecioMin.HasValue)
+                query = query.Where(l => l.Precio >= filters.PrecioMin.Value);
+
+            if (filters.PrecioMax.HasValue)
+                query = query.Where(l => l.Precio <= filters.PrecioMax.Value);
+
+            return await query.Select(l => new ListingResponseDTO//mapea al ResponseDTO para usar cards del front
+            {
+                IdListing = l.IdListing,
+                Titulo = l.Titulo,
+                Condicion = l.Condicion,
+                Categoria = l.Categoria,
+                Precio = l.Precio,
+                Estado = l.Estado,
+                OwnerName = l.Owner!.NombreCliente
+            }).ToListAsync();//trae la lista al final con todos los filtros aplicados
         }
     }
 }

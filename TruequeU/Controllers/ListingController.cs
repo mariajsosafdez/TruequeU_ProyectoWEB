@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TruequeU.DTOs;
 using TruequeU.Filters;
 using TruequeU.Interfaces;
 using TruequeU.Models;
@@ -69,7 +70,7 @@ namespace TruequeU.Controllers
             return Ok(listings);
         }
         [HttpPut("changeStatus")]
-        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeStatusDTO entrada)
+        public async Task<IActionResult> ChangeStatus ([FromBody] ChangeListingStatusDTO entrada)
         {
             var clientId = User.FindFirst("ClientId")?.Value;//Toma ClientId del token
             if (clientId == null) return Unauthorized();
@@ -106,7 +107,6 @@ namespace TruequeU.Controllers
 
             return success ? Ok() : BadRequest("No se pudo procesar la acción de favorito");
         }
-
         [HttpGet("favorites")]
         public async Task<IActionResult> GetFavorites()
         {
@@ -115,6 +115,15 @@ namespace TruequeU.Controllers
 
             var favorites = await _listingService.GetFavoritesByClient(Guid.Parse(clientId));
             return Ok(favorites);
+        }
+
+        [HttpGet("filter")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFiltered([FromQuery] ListingFilterDto filters)
+        {
+            var filteredListings = await _listingService.GetFiltered(filters);
+
+            return Ok(filteredListings);
         }
         public IActionResult Index()
         {
