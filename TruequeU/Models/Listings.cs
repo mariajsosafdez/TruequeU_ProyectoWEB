@@ -33,5 +33,7 @@ namespace TruequeU.Models
 
         [ForeignKey("OwnerId")]
         public Clients? Owner { get; set; }
+        //propiedad de navegación(bidireccional), así permite usar el .include()
+        public ICollection<ListingImage> Images { get; set; } = new List<ListingImage>();
     }
 }
