@@ -15,11 +15,27 @@ namespace TruequeU.Services
         {
             _context = context;
         }
-        public async Task<Listings> Create(Listings listing)
+        public async Task<Listings> Create(Listings listing, List<string> ImageUrls)
         {
             _context.Listings.Add(listing);
-            await _context.SaveChangesAsync();
-            return listing;
+
+            if (ImageUrls != null && ImageUrls.Any())
+            {
+                foreach (var url in ImageUrls)
+                {
+                    var newImage = new ListingImage
+                    {
+                        Url = url,
+                        ListingID = listing.IdListing //asignamos FK
+                    };
+
+                    // se agregan al DbSet de forma independiente pq tienen su propia tabla
+                    _context.ListingImages.Add(newImage);
+                }
+            }
+
+            await _context.SaveChangesAsync();//guarda una única vez
+            return listing;//retorna el objeto
         }
 
         public async Task<List<ListingResponseDTO>> GetAll()
